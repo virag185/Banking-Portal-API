@@ -1,104 +1,115 @@
-# Banking Portal API
+# 💳 Banking Portal API
 
-A backend banking platform focused on secure authentication and financial operations.
+A production-oriented **Digital Banking Backend** built with **Java** and **Spring Boot**. This project is being developed to explore secure authentication, scalable backend architecture, and modern software engineering practices used in real-world banking applications.
 
-FinEdge is a personal backend engineering project built to explore secure API development, authentication, database design, and scalable Spring Boot architecture. Instead of being a simple CRUD application, the goal is to evolve it into a production-style banking backend.
-
----
-
-## Why I Built This
-
-Most beginner banking projects stop at CRUD operations.
-
-FinEdge is being developed as a long-term project to practice real backend engineering concepts such as authentication, authorization, transaction management, and clean architecture.
+> 🚧 This project is under active development, with new features and improvements added incrementally.
 
 ---
 
-## Current Features
-
-- Secure user registration
-- JWT-based authentication
-- Password encryption using BCrypt
-- MySQL persistence with JPA
-- Layered architecture
-- Request validation
-
----
-
-## Tech Stack
-
-- Java 17
-- Spring Boot
-- Spring Security
-- Spring Data JPA
-- MySQL
-- Maven
-- JWT (JJWT)
-- Lombok
-
----
-
-## Project Structure
-
-```text
-controller/
-service/
-repository/
-entity/
-dto/
-config/
-security/
-exception/
-```
-
----
-
-## Development Roadmap
+# ✨ Features
 
 ### Authentication
-- [x] User Registration
-- [x] User Login
-- [x] JWT Generation
+- Secure User Registration
+- User Login
+- JWT Token Generation
+- Password Encryption using BCrypt
 
-### Banking
-- [ ] Account Creation
-- [ ] Deposit
-- [ ] Withdrawal
-- [ ] Fund Transfer
-- [ ] Transaction History
-
-### Security
-- [ ] JWT Request Filter
-- [ ] Role-Based Authorization
-- [ ] Refresh Tokens
-
-### Developer Experience
-- [ ] Swagger Documentation
-- [ ] Docker
-- [ ] Unit Tests
-- [ ] CI/CD
+### Backend
+- RESTful API Design
+- Layered Architecture
+- Request Validation
+- MySQL Database Integration
+- Spring Data JPA
 
 ---
 
-## Running Locally
+# 🛠️ Tech Stack
 
-```bash
-git clone https://github.com/virag185/FinEdgeAPI.git
-```
+| Category | Technology |
+|----------|------------|
+| Language | Java 17 |
+| Framework | Spring Boot |
+| Security | Spring Security, JWT |
+| Database | MySQL |
+| ORM | Spring Data JPA / Hibernate |
+| Build Tool | Maven |
+| Utilities | Lombok |
 
-Create a MySQL database named:
+---
 
-```sql
-CREATE DATABASE finedge_db;
-```
-
-Configure your local database credentials inside:
+# 📂 Project Structure
 
 ```text
-application.properties
+src
+├── controller
+├── service
+├── repository
+├── entity
+├── dto
+├── security
+├── config
+├── util
+└── resources
 ```
 
-Run:
+---
+
+# 📌 Current API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/auth/register | Register a new user |
+| POST | /api/auth/login | Authenticate user |
+
+---
+
+# 🚀 Development Roadmap
+
+## Authentication
+- ✅ User Registration
+- ✅ User Login
+- ✅ JWT Token Generation
+- ⏳ JWT Request Filter
+- ⏳ Role-Based Authorization
+
+## Banking Features
+- ⏳ User Profile API
+- ⏳ Bank Account Management
+- ⏳ Deposit Money
+- ⏳ Withdraw Money
+- ⏳ Fund Transfer
+- ⏳ Transaction History
+
+## Developer Experience
+- ⏳ Swagger / OpenAPI Documentation
+- ⏳ Global Exception Handling
+- ⏳ Unit Testing
+- ⏳ Docker Support
+- ⏳ GitHub Actions CI/CD
+
+---
+
+# ⚙️ Running the Project
+
+Clone the repository
+
+```bash
+git clone https://github.com/virag185/Banking-Portal-API.git
+```
+
+Move into the project
+
+```bash
+cd Banking-Portal-API
+```
+
+Configure your database credentials inside:
+
+```text
+src/main/resources/application.properties
+```
+
+Run the application
 
 ```bash
 ./mvnw spring-boot:run
@@ -106,14 +117,29 @@ Run:
 
 ---
 
-## Status
+# 🎯 Project Goals
 
-FinEdge is under active development. New banking features and security improvements are added incrementally.
+This project is being built to strengthen my backend engineering skills by implementing production-style features such as authentication, authorization, secure API design, database management, and scalable application architecture using Spring Boot.
 
 ---
 
-## Author
+# 📈 Future Improvements
 
-Virag Khade
+- Docker Containerization
+- CI/CD Pipeline
+- API Documentation with Swagger
+- Role-Based Access Control
+- Refresh Tokens
+- Logging & Monitoring
+- Integration Testing
 
-Backend Development • Java • Spring Boot
+---
+
+# 👨‍💻 Author
+
+**Virag Khade**
+
+Backend Developer | Java | Spring Boot | SQL | REST APIs
+
+- GitHub: https://github.com/virag185
+- LinkedIn: https://www.linkedin.com/in/viragkhade/
