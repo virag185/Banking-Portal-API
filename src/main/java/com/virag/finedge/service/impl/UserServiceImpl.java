@@ -11,6 +11,7 @@ import com.virag.finedge.dto.response.UserProfileResponse;
 import com.virag.finedge.entity.User;
 import com.virag.finedge.entity.enums.Role;
 import com.virag.finedge.exception.EmailAlreadyExistsException;
+import com.virag.finedge.exception.InvalidCredentialsException;
 import com.virag.finedge.repository.UserRepository;
 import com.virag.finedge.service.JwtService;
 import com.virag.finedge.service.UserService;
@@ -49,10 +50,10 @@ public class UserServiceImpl implements UserService {
     public LoginResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new InvalidCredentialsException("Invalid email or password");
         }
 
         String token = jwtService.generateToken(user.getEmail());
