@@ -7,8 +7,10 @@ import com.virag.finedge.dto.request.LoginRequest;
 import com.virag.finedge.dto.request.RegisterRequest;
 import com.virag.finedge.dto.response.ApiResponse;
 import com.virag.finedge.dto.response.LoginResponse;
+import com.virag.finedge.dto.response.UserProfileResponse;
 import com.virag.finedge.entity.User;
 import com.virag.finedge.entity.enums.Role;
+import com.virag.finedge.exception.EmailAlreadyExistsException;
 import com.virag.finedge.repository.UserRepository;
 import com.virag.finedge.service.JwtService;
 import com.virag.finedge.service.UserService;
@@ -27,7 +29,7 @@ public class UserServiceImpl implements UserService {
     public ApiResponse register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            return new ApiResponse(false, "Email already exists");
+            throw new EmailAlreadyExistsException("Email already exists");
         }
 
         User user = User.builder()
@@ -56,5 +58,20 @@ public class UserServiceImpl implements UserService {
         String token = jwtService.generateToken(user.getEmail());
 
         return new LoginResponse(token, "Login Successful");
+    }
+
+    @Override
+    public UserProfileResponse getProfile(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return new UserProfileResponse(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getRole()
+        );
     }
 }
