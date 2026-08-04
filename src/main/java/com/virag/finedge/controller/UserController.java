@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.virag.finedge.dto.response.UserProfileResponse;
 import com.virag.finedge.service.UserService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "Bearer Authentication")
 public class UserController {
 
     private final UserService userService;

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 
@@ -21,15 +22,16 @@ import io.swagger.v3.oas.annotations.servers.Server;
                         email = "khadevirag5@gmail.com",
                         url = "https://github.com/virag185"
                 ),
-                license = @License(
-                        name = "MIT License"
-                )
+                license = @License(name = "MIT License")
         ),
         servers = {
                 @Server(
                         url = "http://localhost:8080",
                         description = "Local Server"
                 )
+        },
+        security = {
+                @SecurityRequirement(name = "Bearer Authentication")
         }
 )
 @SecurityScheme(
