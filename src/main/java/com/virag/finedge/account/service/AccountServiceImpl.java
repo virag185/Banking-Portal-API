@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.virag.finedge.account.dto.AccountResponse;
 import com.virag.finedge.account.dto.CreateAccountRequest;
+import com.virag.finedge.account.dto.DepositRequest;
+import com.virag.finedge.account.dto.TransactionResponse;
 import com.virag.finedge.account.entity.Account;
 import com.virag.finedge.account.entity.AccountStatus;
 import com.virag.finedge.account.repository.AccountRepository;
@@ -46,6 +48,23 @@ public class AccountServiceImpl implements AccountService {
                 .balance(account.getBalance())
                 .accountType(account.getAccountType())
                 .status(account.getStatus())
+                .build();
+    }
+
+    @Override
+    public TransactionResponse deposit(String accountNumber, DepositRequest request) {
+
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        account.setBalance(account.getBalance().add(request.getAmount()));
+
+        accountRepository.save(account);
+
+        return TransactionResponse.builder()
+                .message("Amount deposited successfully")
+                .accountNumber(account.getAccountNumber())
+                .balance(account.getBalance())
                 .build();
     }
 
