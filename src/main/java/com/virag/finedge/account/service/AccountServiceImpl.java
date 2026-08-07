@@ -9,6 +9,7 @@ import com.virag.finedge.account.dto.AccountResponse;
 import com.virag.finedge.account.dto.CreateAccountRequest;
 import com.virag.finedge.account.dto.DepositRequest;
 import com.virag.finedge.account.dto.TransactionResponse;
+import com.virag.finedge.account.dto.TransferRequest;
 import com.virag.finedge.account.dto.WithdrawRequest;
 import com.virag.finedge.account.entity.Account;
 import com.virag.finedge.account.entity.AccountStatus;
@@ -87,6 +88,32 @@ public class AccountServiceImpl implements AccountService {
                 .message("Amount withdrawn successfully")
                 .accountNumber(account.getAccountNumber())
                 .balance(account.getBalance())
+                .build();
+    }
+
+    @Override
+    public TransactionResponse transfer(String senderAccountNumber, TransferRequest request) {
+
+        Account sender = accountRepository.findByAccountNumber(senderAccountNumber)
+                .orElseThrow(() -> new RuntimeException("Sender account not found"));
+
+        Account receiver = accountRepository.findByAccountNumber(request.getReceiverAccountNumber())
+                .orElseThrow(() -> new RuntimeException("Receiver account not found"));
+
+        if (sender.getBalance().compareTo(request.getAmount()) < 0) {
+            throw new RuntimeException("Insufficient balance");
+        }
+
+        sender.setBalance(sender.getBalance().subtract(request.getAmount()));
+        receiver.setBalance(receiver.getBalance().add(request.getAmount()));
+
+        accountRepository.save(sender);
+        accountRepository.save(receiver);
+
+        return TransactionResponse.builder()
+                .message("Money transferred successfully")
+                .accountNumber(sender.getAccountNumber())
+                .balance(sender.getBalance())
                 .build();
     }
 
