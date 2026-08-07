@@ -1,6 +1,6 @@
 package com.virag.finedge.account.service;
-
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
@@ -13,7 +13,10 @@ import com.virag.finedge.account.dto.TransferRequest;
 import com.virag.finedge.account.dto.WithdrawRequest;
 import com.virag.finedge.account.entity.Account;
 import com.virag.finedge.account.entity.AccountStatus;
+import com.virag.finedge.account.entity.Transaction;
+import com.virag.finedge.account.entity.TransactionType;
 import com.virag.finedge.account.repository.AccountRepository;
+import com.virag.finedge.account.repository.TransactionRepository;
 import com.virag.finedge.entity.User;
 import com.virag.finedge.repository.UserRepository;
 
@@ -25,7 +28,7 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
-
+    private final TransactionRepository transactionRepository;
     @Override
     public AccountResponse createAccount(CreateAccountRequest request, String email) {
 
@@ -62,6 +65,18 @@ public class AccountServiceImpl implements AccountService {
         account.setBalance(account.getBalance().add(request.getAmount()));
 
         accountRepository.save(account);
+        saveTransaction(
+        account.getAccountNumber(),
+        TransactionType.WITHDRAW,
+        request.getAmount(),
+        account.getBalance()
+);
+        saveTransaction(
+        account.getAccountNumber(),
+        TransactionType.DEPOSIT,
+        request.getAmount(),
+        account.getBalance()
+);
 
         return TransactionResponse.builder()
                 .message("Amount deposited successfully")
@@ -116,6 +131,23 @@ public class AccountServiceImpl implements AccountService {
                 .balance(sender.getBalance())
                 .build();
     }
+
+    private void saveTransaction(
+        String accountNumber,
+        TransactionType transactionType,
+        BigDecimal amount,
+        BigDecimal balance) {
+
+    Transaction transaction = Transaction.builder()
+            .accountNumber(accountNumber)
+            .transactionType(transactionType)
+            .amount(amount)
+            .balanceAfterTransaction(balance)
+            .transactionDate(LocalDateTime.now())
+            .build();
+
+    transactionRepository.save(transaction);
+}
 
     private String generateAccountNumber() {
 
