@@ -9,6 +9,7 @@ import com.virag.finedge.account.dto.AccountResponse;
 import com.virag.finedge.account.dto.CreateAccountRequest;
 import com.virag.finedge.account.dto.DepositRequest;
 import com.virag.finedge.account.dto.TransactionResponse;
+import com.virag.finedge.account.dto.WithdrawRequest;
 import com.virag.finedge.account.entity.Account;
 import com.virag.finedge.account.entity.AccountStatus;
 import com.virag.finedge.account.repository.AccountRepository;
@@ -63,6 +64,27 @@ public class AccountServiceImpl implements AccountService {
 
         return TransactionResponse.builder()
                 .message("Amount deposited successfully")
+                .accountNumber(account.getAccountNumber())
+                .balance(account.getBalance())
+                .build();
+    }
+
+    @Override
+    public TransactionResponse withdraw(String accountNumber, WithdrawRequest request) {
+
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        if (account.getBalance().compareTo(request.getAmount()) < 0) {
+            throw new RuntimeException("Insufficient balance");
+        }
+
+        account.setBalance(account.getBalance().subtract(request.getAmount()));
+
+        accountRepository.save(account);
+
+        return TransactionResponse.builder()
+                .message("Amount withdrawn successfully")
                 .accountNumber(account.getAccountNumber())
                 .balance(account.getBalance())
                 .build();

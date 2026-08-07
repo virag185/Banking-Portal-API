@@ -11,6 +11,7 @@ import com.virag.finedge.account.dto.AccountResponse;
 import com.virag.finedge.account.dto.CreateAccountRequest;
 import com.virag.finedge.account.dto.DepositRequest;
 import com.virag.finedge.account.dto.TransactionResponse;
+import com.virag.finedge.account.dto.WithdrawRequest;
 import com.virag.finedge.account.service.AccountService;
 
 import jakarta.validation.Valid;
@@ -40,5 +41,13 @@ public class AccountController {
             @Valid @RequestBody DepositRequest request) {
 
         return accountService.deposit(accountNumber, request);
+    }
+
+    @PostMapping("/{accountNumber}/withdraw")
+    public TransactionResponse withdraw(
+            @PathVariable String accountNumber,
+            @Valid @RequestBody WithdrawRequest request) {
+
+        return accountService.withdraw(accountNumber, request);
     }
 }
