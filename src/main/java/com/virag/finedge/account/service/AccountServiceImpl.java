@@ -125,6 +125,20 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(sender);
         accountRepository.save(receiver);
 
+        saveTransaction(
+        sender.getAccountNumber(),
+        TransactionType.TRANSFER,
+        request.getAmount().negate(),
+        sender.getBalance()
+);
+
+saveTransaction(
+        receiver.getAccountNumber(),
+        TransactionType.TRANSFER,
+        request.getAmount(),
+        receiver.getBalance()
+);
+
         return TransactionResponse.builder()
                 .message("Money transferred successfully")
                 .accountNumber(sender.getAccountNumber())
