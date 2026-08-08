@@ -1,6 +1,7 @@
 package com.virag.finedge.account.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
@@ -161,6 +162,12 @@ saveTransaction(
             .build();
 
     transactionRepository.save(transaction);
+}
+@Override
+public List<Transaction> getTransactions(String accountNumber) {
+
+    return transactionRepository
+            .findByAccountNumberOrderByTransactionDateDesc(accountNumber);
 }
 
     private String generateAccountNumber() {

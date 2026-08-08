@@ -1,6 +1,8 @@
 package com.virag.finedge.account.controller;
+import java.util.List;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +15,7 @@ import com.virag.finedge.account.dto.DepositRequest;
 import com.virag.finedge.account.dto.TransactionResponse;
 import com.virag.finedge.account.dto.TransferRequest;
 import com.virag.finedge.account.dto.WithdrawRequest;
+import com.virag.finedge.account.entity.Transaction;
 import com.virag.finedge.account.service.AccountService;
 
 import jakarta.validation.Valid;
@@ -59,4 +62,10 @@ public class AccountController {
 
         return accountService.transfer(accountNumber, request);
     }
+    @GetMapping("/{accountNumber}/transactions")
+public List<Transaction> getTransactions(
+        @PathVariable String accountNumber) {
+
+    return accountService.getTransactions(accountNumber);
+}
 }
