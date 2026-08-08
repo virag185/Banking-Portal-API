@@ -185,6 +185,22 @@ public AccountResponse getAccount(String accountNumber) {
             .build();
 }
 
+@Override
+public List<AccountResponse> getUserAccounts(String email) {
+
+    List<Account> accounts = accountRepository.findByUserEmail(email);
+
+    return accounts.stream()
+            .map(account -> AccountResponse.builder()
+                    .accountNumber(account.getAccountNumber())
+                    .accountHolder(account.getUser().getFullName())
+                    .balance(account.getBalance())
+                    .accountType(account.getAccountType())
+                    .status(account.getStatus())
+                    .build())
+            .toList();
+}
+
     private String generateAccountNumber() {
 
         Random random = new Random();

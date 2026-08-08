@@ -21,4 +21,6 @@ public interface AccountService {
     List<Transaction> getTransactions(String accountNumber);
 
     AccountResponse getAccount(String accountNumber);
+
+    List<AccountResponse> getUserAccounts(String email);
 }
