@@ -170,6 +170,21 @@ public List<Transaction> getTransactions(String accountNumber) {
             .findByAccountNumberOrderByTransactionDateDesc(accountNumber);
 }
 
+@Override
+public AccountResponse getAccount(String accountNumber) {
+
+    Account account = accountRepository.findByAccountNumber(accountNumber)
+            .orElseThrow(() -> new RuntimeException("Account not found"));
+
+    return AccountResponse.builder()
+            .accountNumber(account.getAccountNumber())
+            .accountHolder(account.getUser().getFullName())
+            .balance(account.getBalance())
+            .accountType(account.getAccountType())
+            .status(account.getStatus())
+            .build();
+}
+
     private String generateAccountNumber() {
 
         Random random = new Random();

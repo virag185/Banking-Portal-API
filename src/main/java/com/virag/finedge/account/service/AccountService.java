@@ -19,4 +19,6 @@ public interface AccountService {
     TransactionResponse transfer(String senderAccountNumber, TransferRequest request);
 
     List<Transaction> getTransactions(String accountNumber);
+
+    AccountResponse getAccount(String accountNumber);
 }

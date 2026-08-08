@@ -62,6 +62,15 @@ public class AccountController {
 
         return accountService.transfer(accountNumber, request);
     }
+
+    @GetMapping("/{accountNumber}")
+public AccountResponse getAccount(
+        @PathVariable String accountNumber) {
+
+    return accountService.getAccount(accountNumber);
+}
+
+
     @GetMapping("/{accountNumber}/transactions")
 public List<Transaction> getTransactions(
         @PathVariable String accountNumber) {
