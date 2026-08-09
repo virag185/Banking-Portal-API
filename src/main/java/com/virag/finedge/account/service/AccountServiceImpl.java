@@ -113,8 +113,16 @@ public class AccountServiceImpl implements AccountService {
         Account sender = accountRepository.findByAccountNumber(senderAccountNumber)
                 .orElseThrow(() -> new RuntimeException("Sender account not found"));
 
+                if (sender.getStatus() != AccountStatus.ACTIVE) {
+    throw new RuntimeException("Sender account is not active");
+}
+
         Account receiver = accountRepository.findByAccountNumber(request.getReceiverAccountNumber())
                 .orElseThrow(() -> new RuntimeException("Receiver account not found"));
+
+                if (receiver.getStatus() != AccountStatus.ACTIVE) {
+    throw new RuntimeException("Receiver account is not active");
+}
 
         if (sender.getBalance().compareTo(request.getAmount()) < 0) {
             throw new RuntimeException("Insufficient balance");
