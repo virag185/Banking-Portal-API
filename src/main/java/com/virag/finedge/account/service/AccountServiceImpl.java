@@ -176,6 +176,10 @@ public AccountResponse getAccount(String accountNumber) {
     Account account = accountRepository.findByAccountNumber(accountNumber)
             .orElseThrow(() -> new RuntimeException("Account not found"));
 
+            if (account.getStatus() != AccountStatus.ACTIVE) {
+    throw new RuntimeException("Account is not active");
+}
+
     return AccountResponse.builder()
             .accountNumber(account.getAccountNumber())
             .accountHolder(account.getUser().getFullName())
