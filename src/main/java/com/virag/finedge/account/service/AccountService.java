@@ -23,4 +23,6 @@ public interface AccountService {
     AccountResponse getAccount(String accountNumber);
 
     List<AccountResponse> getUserAccounts(String email);
+
+    AccountResponse closeAccount(String accountNumber);
 }

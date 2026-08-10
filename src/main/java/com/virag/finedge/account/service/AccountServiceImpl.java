@@ -1,4 +1,5 @@
 package com.virag.finedge.account.service;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,6 +31,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
+
     @Override
     public AccountResponse createAccount(CreateAccountRequest request, String email) {
 
@@ -63,21 +65,20 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
+        if (account.getStatus() != AccountStatus.ACTIVE) {
+            throw new RuntimeException("Account is not active");
+        }
+
         account.setBalance(account.getBalance().add(request.getAmount()));
 
         accountRepository.save(account);
+
         saveTransaction(
-        account.getAccountNumber(),
-        TransactionType.WITHDRAW,
-        request.getAmount(),
-        account.getBalance()
-);
-        saveTransaction(
-        account.getAccountNumber(),
-        TransactionType.DEPOSIT,
-        request.getAmount(),
-        account.getBalance()
-);
+                account.getAccountNumber(),
+                TransactionType.DEPOSIT,
+                request.getAmount(),
+                account.getBalance()
+        );
 
         return TransactionResponse.builder()
                 .message("Amount deposited successfully")
@@ -92,6 +93,10 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
+        if (account.getStatus() != AccountStatus.ACTIVE) {
+            throw new RuntimeException("Account is not active");
+        }
+
         if (account.getBalance().compareTo(request.getAmount()) < 0) {
             throw new RuntimeException("Insufficient balance");
         }
@@ -99,6 +104,13 @@ public class AccountServiceImpl implements AccountService {
         account.setBalance(account.getBalance().subtract(request.getAmount()));
 
         accountRepository.save(account);
+
+        saveTransaction(
+                account.getAccountNumber(),
+                TransactionType.WITHDRAW,
+                request.getAmount().negate(),
+                account.getBalance()
+        );
 
         return TransactionResponse.builder()
                 .message("Amount withdrawn successfully")
@@ -108,45 +120,56 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public TransactionResponse transfer(String senderAccountNumber, TransferRequest request) {
+    public TransactionResponse transfer(
+            String senderAccountNumber,
+            TransferRequest request) {
 
-        Account sender = accountRepository.findByAccountNumber(senderAccountNumber)
-                .orElseThrow(() -> new RuntimeException("Sender account not found"));
+        Account sender = accountRepository
+                .findByAccountNumber(senderAccountNumber)
+                .orElseThrow(() ->
+                        new RuntimeException("Sender account not found"));
 
-                if (sender.getStatus() != AccountStatus.ACTIVE) {
-    throw new RuntimeException("Sender account is not active");
-}
+        if (sender.getStatus() != AccountStatus.ACTIVE) {
+            throw new RuntimeException("Sender account is not active");
+        }
 
-        Account receiver = accountRepository.findByAccountNumber(request.getReceiverAccountNumber())
-                .orElseThrow(() -> new RuntimeException("Receiver account not found"));
+        Account receiver = accountRepository
+                .findByAccountNumber(request.getReceiverAccountNumber())
+                .orElseThrow(() ->
+                        new RuntimeException("Receiver account not found"));
 
-                if (receiver.getStatus() != AccountStatus.ACTIVE) {
-    throw new RuntimeException("Receiver account is not active");
-}
+        if (receiver.getStatus() != AccountStatus.ACTIVE) {
+            throw new RuntimeException("Receiver account is not active");
+        }
 
         if (sender.getBalance().compareTo(request.getAmount()) < 0) {
             throw new RuntimeException("Insufficient balance");
         }
 
-        sender.setBalance(sender.getBalance().subtract(request.getAmount()));
-        receiver.setBalance(receiver.getBalance().add(request.getAmount()));
+        sender.setBalance(
+                sender.getBalance().subtract(request.getAmount())
+        );
+
+        receiver.setBalance(
+                receiver.getBalance().add(request.getAmount())
+        );
 
         accountRepository.save(sender);
         accountRepository.save(receiver);
 
         saveTransaction(
-        sender.getAccountNumber(),
-        TransactionType.TRANSFER,
-        request.getAmount().negate(),
-        sender.getBalance()
-);
+                sender.getAccountNumber(),
+                TransactionType.TRANSFER,
+                request.getAmount().negate(),
+                sender.getBalance()
+        );
 
-saveTransaction(
-        receiver.getAccountNumber(),
-        TransactionType.TRANSFER,
-        request.getAmount(),
-        receiver.getBalance()
-);
+        saveTransaction(
+                receiver.getAccountNumber(),
+                TransactionType.TRANSFER,
+                request.getAmount(),
+                receiver.getBalance()
+        );
 
         return TransactionResponse.builder()
                 .message("Money transferred successfully")
@@ -156,67 +179,102 @@ saveTransaction(
     }
 
     private void saveTransaction(
-        String accountNumber,
-        TransactionType transactionType,
-        BigDecimal amount,
-        BigDecimal balance) {
+            String accountNumber,
+            TransactionType transactionType,
+            BigDecimal amount,
+            BigDecimal balance) {
 
-    Transaction transaction = Transaction.builder()
-            .accountNumber(accountNumber)
-            .transactionType(transactionType)
-            .amount(amount)
-            .balanceAfterTransaction(balance)
-            .transactionDate(LocalDateTime.now())
-            .build();
+        Transaction transaction = Transaction.builder()
+                .accountNumber(accountNumber)
+                .transactionType(transactionType)
+                .amount(amount)
+                .balanceAfterTransaction(balance)
+                .transactionDate(LocalDateTime.now())
+                .build();
 
-    transactionRepository.save(transaction);
-}
-@Override
-public List<Transaction> getTransactions(String accountNumber) {
+        transactionRepository.save(transaction);
+    }
 
-    return transactionRepository
-            .findByAccountNumberOrderByTransactionDateDesc(accountNumber);
-}
+    @Override
+    public List<Transaction> getTransactions(String accountNumber) {
 
-@Override
-public AccountResponse getAccount(String accountNumber) {
+        return transactionRepository
+                .findByAccountNumberOrderByTransactionDateDesc(accountNumber);
+    }
 
-    Account account = accountRepository.findByAccountNumber(accountNumber)
-            .orElseThrow(() -> new RuntimeException("Account not found"));
+    @Override
+    public AccountResponse getAccount(String accountNumber) {
 
-            if (account.getStatus() != AccountStatus.ACTIVE) {
-    throw new RuntimeException("Account is not active");
-}
+        Account account = accountRepository
+                .findByAccountNumber(accountNumber)
+                .orElseThrow(() ->
+                        new RuntimeException("Account not found"));
 
-    return AccountResponse.builder()
-            .accountNumber(account.getAccountNumber())
-            .accountHolder(account.getUser().getFullName())
-            .balance(account.getBalance())
-            .accountType(account.getAccountType())
-            .status(account.getStatus())
-            .build();
-}
+        if (account.getStatus() != AccountStatus.ACTIVE) {
+            throw new RuntimeException("Account is not active");
+        }
 
-@Override
-public List<AccountResponse> getUserAccounts(String email) {
+        return AccountResponse.builder()
+                .accountNumber(account.getAccountNumber())
+                .accountHolder(account.getUser().getFullName())
+                .balance(account.getBalance())
+                .accountType(account.getAccountType())
+                .status(account.getStatus())
+                .build();
+    }
 
-    List<Account> accounts = accountRepository.findByUserEmail(email);
+    @Override
+    public List<AccountResponse> getUserAccounts(String email) {
 
-    return accounts.stream()
-            .map(account -> AccountResponse.builder()
-                    .accountNumber(account.getAccountNumber())
-                    .accountHolder(account.getUser().getFullName())
-                    .balance(account.getBalance())
-                    .accountType(account.getAccountType())
-                    .status(account.getStatus())
-                    .build())
-            .toList();
-}
+        List<Account> accounts = accountRepository.findByUserEmail(email);
+
+        return accounts.stream()
+                .map(account -> AccountResponse.builder()
+                        .accountNumber(account.getAccountNumber())
+                        .accountHolder(account.getUser().getFullName())
+                        .balance(account.getBalance())
+                        .accountType(account.getAccountType())
+                        .status(account.getStatus())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public AccountResponse closeAccount(String accountNumber) {
+
+        Account account = accountRepository
+                .findByAccountNumber(accountNumber)
+                .orElseThrow(() ->
+                        new RuntimeException("Account not found"));
+
+        if (account.getStatus() == AccountStatus.CLOSED) {
+            throw new RuntimeException("Account is already closed");
+        }
+
+        if (account.getBalance().compareTo(BigDecimal.ZERO) > 0) {
+            throw new RuntimeException(
+                    "Cannot close account with remaining balance");
+        }
+
+        account.setStatus(AccountStatus.CLOSED);
+
+        accountRepository.save(account);
+
+        return AccountResponse.builder()
+                .accountNumber(account.getAccountNumber())
+                .accountHolder(account.getUser().getFullName())
+                .balance(account.getBalance())
+                .accountType(account.getAccountType())
+                .status(account.getStatus())
+                .build();
+    }
 
     private String generateAccountNumber() {
 
         Random random = new Random();
 
-        return String.valueOf(1000000000L + random.nextInt(900000000));
+        return String.valueOf(
+                1000000000L + random.nextInt(900000000)
+        );
     }
 }
