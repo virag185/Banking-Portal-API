@@ -1,4 +1,5 @@
 package com.virag.finedge.account.repository;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +10,10 @@ import com.virag.finedge.account.entity.Account;
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Optional<Account> findByAccountNumber(String accountNumber);
+
+    Optional<Account> findByAccountNumberAndUserEmail(
+            String accountNumber,
+            String email);
 
     boolean existsByAccountNumber(String accountNumber);
 

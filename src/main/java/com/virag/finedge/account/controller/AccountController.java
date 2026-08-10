@@ -1,4 +1,5 @@
 package com.virag.finedge.account.controller;
+
 import java.util.List;
 
 import org.springframework.security.core.Authentication;
@@ -43,9 +44,14 @@ public class AccountController {
     @PostMapping("/{accountNumber}/deposit")
     public TransactionResponse deposit(
             @PathVariable String accountNumber,
-            @Valid @RequestBody DepositRequest request) {
+            @Valid @RequestBody DepositRequest request,
+            Authentication authentication) {
 
-        return accountService.deposit(accountNumber, request);
+        return accountService.deposit(
+                accountNumber,
+                request,
+                authentication.getName()
+        );
     }
 
     @PostMapping("/{accountNumber}/withdraw")
@@ -53,7 +59,10 @@ public class AccountController {
             @PathVariable String accountNumber,
             @Valid @RequestBody WithdrawRequest request) {
 
-        return accountService.withdraw(accountNumber, request);
+        return accountService.withdraw(
+                accountNumber,
+                request
+        );
     }
 
     @PostMapping("/{accountNumber}/transfer")
@@ -61,37 +70,47 @@ public class AccountController {
             @PathVariable String accountNumber,
             @Valid @RequestBody TransferRequest request) {
 
-        return accountService.transfer(accountNumber, request);
+        return accountService.transfer(
+                accountNumber,
+                request
+        );
     }
 
     @GetMapping
-public List<AccountResponse> getUserAccounts(
-        Authentication authentication) {
+    public List<AccountResponse> getUserAccounts(
+            Authentication authentication) {
 
-    return accountService.getUserAccounts(
-            authentication.getName()
-    );
-}
+        return accountService.getUserAccounts(
+                authentication.getName()
+        );
+    }
 
     @GetMapping("/{accountNumber}")
-public AccountResponse getAccount(
-        @PathVariable String accountNumber) {
+    public AccountResponse getAccount(
+            @PathVariable String accountNumber,
+            Authentication authentication) {
 
-    return accountService.getAccount(accountNumber);
-}
-
+        return accountService.getAccount(
+                accountNumber,
+                authentication.getName()
+        );
+    }
 
     @GetMapping("/{accountNumber}/transactions")
-public List<Transaction> getTransactions(
-        @PathVariable String accountNumber) {
+    public List<Transaction> getTransactions(
+            @PathVariable String accountNumber) {
 
-    return accountService.getTransactions(accountNumber);
-}
+        return accountService.getTransactions(
+                accountNumber
+        );
+    }
 
-@PatchMapping("/{accountNumber}/close")
-public AccountResponse closeAccount(
-        @PathVariable String accountNumber) {
+    @PatchMapping("/{accountNumber}/close")
+    public AccountResponse closeAccount(
+            @PathVariable String accountNumber) {
 
-    return accountService.closeAccount(accountNumber);
-}
+        return accountService.closeAccount(
+                accountNumber
+        );
+    }
 }

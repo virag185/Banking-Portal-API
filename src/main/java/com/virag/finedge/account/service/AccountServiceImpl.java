@@ -33,7 +33,9 @@ public class AccountServiceImpl implements AccountService {
     private final TransactionRepository transactionRepository;
 
     @Override
-    public AccountResponse createAccount(CreateAccountRequest request, String email) {
+    public AccountResponse createAccount(
+            CreateAccountRequest request,
+            String email) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -60,16 +62,23 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public TransactionResponse deposit(String accountNumber, DepositRequest request) {
+    public TransactionResponse deposit(
+            String accountNumber,
+            DepositRequest request,
+            String email) {
 
-        Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+        Account account = accountRepository
+                .findByAccountNumberAndUserEmail(accountNumber, email)
+                .orElseThrow(() ->
+                        new RuntimeException("Account not found"));
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
             throw new RuntimeException("Account is not active");
         }
 
-        account.setBalance(account.getBalance().add(request.getAmount()));
+        account.setBalance(
+                account.getBalance().add(request.getAmount())
+        );
 
         accountRepository.save(account);
 
@@ -88,20 +97,28 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public TransactionResponse withdraw(String accountNumber, WithdrawRequest request) {
+    public TransactionResponse withdraw(
+            String accountNumber,
+            WithdrawRequest request) {
 
-        Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+        Account account = accountRepository
+                .findByAccountNumber(accountNumber)
+                .orElseThrow(() ->
+                        new RuntimeException("Account not found"));
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
             throw new RuntimeException("Account is not active");
         }
 
-        if (account.getBalance().compareTo(request.getAmount()) < 0) {
+        if (account.getBalance()
+                .compareTo(request.getAmount()) < 0) {
+
             throw new RuntimeException("Insufficient balance");
         }
 
-        account.setBalance(account.getBalance().subtract(request.getAmount()));
+        account.setBalance(
+                account.getBalance().subtract(request.getAmount())
+        );
 
         accountRepository.save(account);
 
@@ -130,19 +147,25 @@ public class AccountServiceImpl implements AccountService {
                         new RuntimeException("Sender account not found"));
 
         if (sender.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException("Sender account is not active");
+            throw new RuntimeException(
+                    "Sender account is not active");
         }
 
         Account receiver = accountRepository
-                .findByAccountNumber(request.getReceiverAccountNumber())
+                .findByAccountNumber(
+                        request.getReceiverAccountNumber())
                 .orElseThrow(() ->
-                        new RuntimeException("Receiver account not found"));
+                        new RuntimeException(
+                                "Receiver account not found"));
 
         if (receiver.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException("Receiver account is not active");
+            throw new RuntimeException(
+                    "Receiver account is not active");
         }
 
-        if (sender.getBalance().compareTo(request.getAmount()) < 0) {
+        if (sender.getBalance()
+                .compareTo(request.getAmount()) < 0) {
+
             throw new RuntimeException("Insufficient balance");
         }
 
@@ -196,17 +219,23 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Transaction> getTransactions(String accountNumber) {
+    public List<Transaction> getTransactions(
+            String accountNumber) {
 
         return transactionRepository
-                .findByAccountNumberOrderByTransactionDateDesc(accountNumber);
+                .findByAccountNumberOrderByTransactionDateDesc(
+                        accountNumber);
     }
 
     @Override
-    public AccountResponse getAccount(String accountNumber) {
+    public AccountResponse getAccount(
+            String accountNumber,
+            String email) {
 
         Account account = accountRepository
-                .findByAccountNumber(accountNumber)
+                .findByAccountNumberAndUserEmail(
+                        accountNumber,
+                        email)
                 .orElseThrow(() ->
                         new RuntimeException("Account not found"));
 
@@ -216,7 +245,8 @@ public class AccountServiceImpl implements AccountService {
 
         return AccountResponse.builder()
                 .accountNumber(account.getAccountNumber())
-                .accountHolder(account.getUser().getFullName())
+                .accountHolder(
+                        account.getUser().getFullName())
                 .balance(account.getBalance())
                 .accountType(account.getAccountType())
                 .status(account.getStatus())
@@ -224,23 +254,29 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<AccountResponse> getUserAccounts(String email) {
+    public List<AccountResponse> getUserAccounts(
+            String email) {
 
-        List<Account> accounts = accountRepository.findByUserEmail(email);
+        List<Account> accounts =
+                accountRepository.findByUserEmail(email);
 
         return accounts.stream()
                 .map(account -> AccountResponse.builder()
-                        .accountNumber(account.getAccountNumber())
-                        .accountHolder(account.getUser().getFullName())
+                        .accountNumber(
+                                account.getAccountNumber())
+                        .accountHolder(
+                                account.getUser().getFullName())
                         .balance(account.getBalance())
-                        .accountType(account.getAccountType())
+                        .accountType(
+                                account.getAccountType())
                         .status(account.getStatus())
                         .build())
                 .toList();
     }
 
     @Override
-    public AccountResponse closeAccount(String accountNumber) {
+    public AccountResponse closeAccount(
+            String accountNumber) {
 
         Account account = accountRepository
                 .findByAccountNumber(accountNumber)
@@ -248,10 +284,13 @@ public class AccountServiceImpl implements AccountService {
                         new RuntimeException("Account not found"));
 
         if (account.getStatus() == AccountStatus.CLOSED) {
-            throw new RuntimeException("Account is already closed");
+            throw new RuntimeException(
+                    "Account is already closed");
         }
 
-        if (account.getBalance().compareTo(BigDecimal.ZERO) > 0) {
+        if (account.getBalance()
+                .compareTo(BigDecimal.ZERO) > 0) {
+
             throw new RuntimeException(
                     "Cannot close account with remaining balance");
         }
@@ -262,7 +301,8 @@ public class AccountServiceImpl implements AccountService {
 
         return AccountResponse.builder()
                 .accountNumber(account.getAccountNumber())
-                .accountHolder(account.getUser().getFullName())
+                .accountHolder(
+                        account.getUser().getFullName())
                 .balance(account.getBalance())
                 .accountType(account.getAccountType())
                 .status(account.getStatus())

@@ -12,7 +12,7 @@ public interface AccountService {
 
     AccountResponse createAccount(CreateAccountRequest request, String email);
 
-    TransactionResponse deposit(String accountNumber, DepositRequest request);
+    TransactionResponse deposit(String accountNumber, DepositRequest request , String email);
 
     TransactionResponse withdraw(String accountNumber, WithdrawRequest request);
 
@@ -20,7 +20,7 @@ public interface AccountService {
 
     List<Transaction> getTransactions(String accountNumber);
 
-    AccountResponse getAccount(String accountNumber);
+AccountResponse getAccount(String accountNumber, String email);
 
     List<AccountResponse> getUserAccounts(String email);
 
