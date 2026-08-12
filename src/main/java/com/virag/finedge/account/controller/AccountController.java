@@ -97,14 +97,15 @@ public class AccountController {
     }
 
     @GetMapping("/{accountNumber}/transactions")
-    public List<Transaction> getTransactions(
-            @PathVariable String accountNumber) {
+public List<Transaction> getTransactions(
+        @PathVariable String accountNumber,
+        Authentication authentication) {
 
-        return accountService.getTransactions(
-                accountNumber
-        );
-    }
-
+    return accountService.getTransactions(
+            accountNumber,
+            authentication.getName()
+    );
+}
     @PatchMapping("/{accountNumber}/close")
     public AccountResponse closeAccount(
             @PathVariable String accountNumber) {

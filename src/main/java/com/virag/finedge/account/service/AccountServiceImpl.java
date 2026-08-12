@@ -218,14 +218,22 @@ public class AccountServiceImpl implements AccountService {
         transactionRepository.save(transaction);
     }
 
-    @Override
-    public List<Transaction> getTransactions(
-            String accountNumber) {
+  @Override
+public List<Transaction> getTransactions(
+        String accountNumber,
+        String email) {
 
-        return transactionRepository
-                .findByAccountNumberOrderByTransactionDateDesc(
-                        accountNumber);
-    }
+    accountRepository
+            .findByAccountNumberAndUserEmail(
+                    accountNumber,
+                    email)
+            .orElseThrow(() ->
+                    new RuntimeException("Account not found"));
+
+    return transactionRepository
+            .findByAccountNumberOrderByTransactionDateDesc(
+                    accountNumber);
+}
 
     @Override
     public AccountResponse getAccount(
