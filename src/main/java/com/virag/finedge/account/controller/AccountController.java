@@ -30,6 +30,10 @@ public class AccountController {
 
     private final AccountService accountService;
 
+    // =========================
+    // CREATE ACCOUNT
+    // =========================
+
     @PostMapping
     public AccountResponse createAccount(
             @Valid @RequestBody CreateAccountRequest request,
@@ -40,6 +44,10 @@ public class AccountController {
                 authentication.getName()
         );
     }
+
+    // =========================
+    // DEPOSIT
+    // =========================
 
     @PostMapping("/{accountNumber}/deposit")
     public TransactionResponse deposit(
@@ -54,27 +62,43 @@ public class AccountController {
         );
     }
 
+    // =========================
+    // WITHDRAW
+    // =========================
+
     @PostMapping("/{accountNumber}/withdraw")
     public TransactionResponse withdraw(
             @PathVariable String accountNumber,
-            @Valid @RequestBody WithdrawRequest request) {
+            @Valid @RequestBody WithdrawRequest request,
+            Authentication authentication) {
 
         return accountService.withdraw(
                 accountNumber,
-                request
+                request,
+                authentication.getName()
         );
     }
+
+    // =========================
+    // TRANSFER
+    // =========================
 
     @PostMapping("/{accountNumber}/transfer")
     public TransactionResponse transfer(
             @PathVariable String accountNumber,
-            @Valid @RequestBody TransferRequest request) {
+            @Valid @RequestBody TransferRequest request,
+            Authentication authentication) {
 
         return accountService.transfer(
                 accountNumber,
-                request
+                request,
+                authentication.getName()
         );
     }
+
+    // =========================
+    // GET USER ACCOUNTS
+    // =========================
 
     @GetMapping
     public List<AccountResponse> getUserAccounts(
@@ -84,6 +108,10 @@ public class AccountController {
                 authentication.getName()
         );
     }
+
+    // =========================
+    // GET SINGLE ACCOUNT
+    // =========================
 
     @GetMapping("/{accountNumber}")
     public AccountResponse getAccount(
@@ -96,22 +124,33 @@ public class AccountController {
         );
     }
 
-    @GetMapping("/{accountNumber}/transactions")
-public List<Transaction> getTransactions(
-        @PathVariable String accountNumber,
-        Authentication authentication) {
+    // =========================
+    // TRANSACTION HISTORY
+    // =========================
 
-    return accountService.getTransactions(
-            accountNumber,
-            authentication.getName()
-    );
-}
+    @GetMapping("/{accountNumber}/transactions")
+    public List<Transaction> getTransactions(
+            @PathVariable String accountNumber,
+            Authentication authentication) {
+
+        return accountService.getTransactions(
+                accountNumber,
+                authentication.getName()
+        );
+    }
+
+    // =========================
+    // CLOSE ACCOUNT
+    // =========================
+
     @PatchMapping("/{accountNumber}/close")
     public AccountResponse closeAccount(
-            @PathVariable String accountNumber) {
+            @PathVariable String accountNumber,
+            Authentication authentication) {
 
         return accountService.closeAccount(
-                accountNumber
+                accountNumber,
+                authentication.getName()
         );
     }
 }

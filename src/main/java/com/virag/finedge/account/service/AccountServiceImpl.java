@@ -32,13 +32,18 @@ public class AccountServiceImpl implements AccountService {
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
 
+    // =========================
+    // CREATE ACCOUNT
+    // =========================
+
     @Override
     public AccountResponse createAccount(
             CreateAccountRequest request,
             String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
 
         String accountNumber = generateAccountNumber();
 
@@ -61,6 +66,10 @@ public class AccountServiceImpl implements AccountService {
                 .build();
     }
 
+    // =========================
+    // DEPOSIT
+    // =========================
+
     @Override
     public TransactionResponse deposit(
             String accountNumber,
@@ -68,16 +77,20 @@ public class AccountServiceImpl implements AccountService {
             String email) {
 
         Account account = accountRepository
-                .findByAccountNumberAndUserEmail(accountNumber, email)
+                .findByAccountNumberAndUserEmail(
+                        accountNumber,
+                        email)
                 .orElseThrow(() ->
                         new RuntimeException("Account not found"));
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException("Account is not active");
+            throw new RuntimeException(
+                    "Account is not active");
         }
 
         account.setBalance(
-                account.getBalance().add(request.getAmount())
+                account.getBalance()
+                        .add(request.getAmount())
         );
 
         accountRepository.save(account);
@@ -96,28 +109,38 @@ public class AccountServiceImpl implements AccountService {
                 .build();
     }
 
+    // =========================
+    // WITHDRAW
+    // =========================
+
     @Override
     public TransactionResponse withdraw(
             String accountNumber,
-            WithdrawRequest request) {
+            WithdrawRequest request,
+            String email) {
 
         Account account = accountRepository
-                .findByAccountNumber(accountNumber)
+                .findByAccountNumberAndUserEmail(
+                        accountNumber,
+                        email)
                 .orElseThrow(() ->
                         new RuntimeException("Account not found"));
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException("Account is not active");
+            throw new RuntimeException(
+                    "Account is not active");
         }
 
         if (account.getBalance()
                 .compareTo(request.getAmount()) < 0) {
 
-            throw new RuntimeException("Insufficient balance");
+            throw new RuntimeException(
+                    "Insufficient balance");
         }
 
         account.setBalance(
-                account.getBalance().subtract(request.getAmount())
+                account.getBalance()
+                        .subtract(request.getAmount())
         );
 
         accountRepository.save(account);
@@ -136,21 +159,31 @@ public class AccountServiceImpl implements AccountService {
                 .build();
     }
 
+    // =========================
+    // TRANSFER
+    // =========================
+
     @Override
     public TransactionResponse transfer(
             String senderAccountNumber,
-            TransferRequest request) {
+            TransferRequest request,
+            String email) {
 
+        // Verify sender belongs to logged-in user
         Account sender = accountRepository
-                .findByAccountNumber(senderAccountNumber)
+                .findByAccountNumberAndUserEmail(
+                        senderAccountNumber,
+                        email)
                 .orElseThrow(() ->
-                        new RuntimeException("Sender account not found"));
+                        new RuntimeException(
+                                "Sender account not found"));
 
         if (sender.getStatus() != AccountStatus.ACTIVE) {
             throw new RuntimeException(
                     "Sender account is not active");
         }
 
+        // Receiver can belong to another user
         Account receiver = accountRepository
                 .findByAccountNumber(
                         request.getReceiverAccountNumber())
@@ -163,23 +196,34 @@ public class AccountServiceImpl implements AccountService {
                     "Receiver account is not active");
         }
 
+        if (sender.getAccountNumber()
+                .equals(receiver.getAccountNumber())) {
+
+            throw new RuntimeException(
+                    "Cannot transfer to the same account");
+        }
+
         if (sender.getBalance()
                 .compareTo(request.getAmount()) < 0) {
 
-            throw new RuntimeException("Insufficient balance");
+            throw new RuntimeException(
+                    "Insufficient balance");
         }
 
         sender.setBalance(
-                sender.getBalance().subtract(request.getAmount())
+                sender.getBalance()
+                        .subtract(request.getAmount())
         );
 
         receiver.setBalance(
-                receiver.getBalance().add(request.getAmount())
+                receiver.getBalance()
+                        .add(request.getAmount())
         );
 
         accountRepository.save(sender);
         accountRepository.save(receiver);
 
+        // Sender transaction
         saveTransaction(
                 sender.getAccountNumber(),
                 TransactionType.TRANSFER,
@@ -187,6 +231,7 @@ public class AccountServiceImpl implements AccountService {
                 sender.getBalance()
         );
 
+        // Receiver transaction
         saveTransaction(
                 receiver.getAccountNumber(),
                 TransactionType.TRANSFER,
@@ -200,6 +245,10 @@ public class AccountServiceImpl implements AccountService {
                 .balance(sender.getBalance())
                 .build();
     }
+
+    // =========================
+    // SAVE TRANSACTION
+    // =========================
 
     private void saveTransaction(
             String accountNumber,
@@ -218,22 +267,31 @@ public class AccountServiceImpl implements AccountService {
         transactionRepository.save(transaction);
     }
 
-  @Override
-public List<Transaction> getTransactions(
-        String accountNumber,
-        String email) {
+    // =========================
+    // TRANSACTION HISTORY
+    // =========================
 
-    accountRepository
-            .findByAccountNumberAndUserEmail(
-                    accountNumber,
-                    email)
-            .orElseThrow(() ->
-                    new RuntimeException("Account not found"));
+    @Override
+    public List<Transaction> getTransactions(
+            String accountNumber,
+            String email) {
 
-    return transactionRepository
-            .findByAccountNumberOrderByTransactionDateDesc(
-                    accountNumber);
-}
+        accountRepository
+                .findByAccountNumberAndUserEmail(
+                        accountNumber,
+                        email)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Account not found"));
+
+        return transactionRepository
+                .findByAccountNumberOrderByTransactionDateDesc(
+                        accountNumber);
+    }
+
+    // =========================
+    // GET ACCOUNT
+    // =========================
 
     @Override
     public AccountResponse getAccount(
@@ -245,10 +303,12 @@ public List<Transaction> getTransactions(
                         accountNumber,
                         email)
                 .orElseThrow(() ->
-                        new RuntimeException("Account not found"));
+                        new RuntimeException(
+                                "Account not found"));
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException("Account is not active");
+            throw new RuntimeException(
+                    "Account is not active");
         }
 
         return AccountResponse.builder()
@@ -261,6 +321,10 @@ public List<Transaction> getTransactions(
                 .build();
     }
 
+    // =========================
+    // GET USER ACCOUNTS
+    // =========================
+
     @Override
     public List<AccountResponse> getUserAccounts(
             String email) {
@@ -269,27 +333,39 @@ public List<Transaction> getTransactions(
                 accountRepository.findByUserEmail(email);
 
         return accounts.stream()
-                .map(account -> AccountResponse.builder()
-                        .accountNumber(
-                                account.getAccountNumber())
-                        .accountHolder(
-                                account.getUser().getFullName())
-                        .balance(account.getBalance())
-                        .accountType(
-                                account.getAccountType())
-                        .status(account.getStatus())
-                        .build())
+                .map(account ->
+                        AccountResponse.builder()
+                                .accountNumber(
+                                        account.getAccountNumber())
+                                .accountHolder(
+                                        account.getUser()
+                                                .getFullName())
+                                .balance(
+                                        account.getBalance())
+                                .accountType(
+                                        account.getAccountType())
+                                .status(
+                                        account.getStatus())
+                                .build())
                 .toList();
     }
 
+    // =========================
+    // CLOSE ACCOUNT
+    // =========================
+
     @Override
     public AccountResponse closeAccount(
-            String accountNumber) {
+            String accountNumber,
+            String email) {
 
         Account account = accountRepository
-                .findByAccountNumber(accountNumber)
+                .findByAccountNumberAndUserEmail(
+                        accountNumber,
+                        email)
                 .orElseThrow(() ->
-                        new RuntimeException("Account not found"));
+                        new RuntimeException(
+                                "Account not found"));
 
         if (account.getStatus() == AccountStatus.CLOSED) {
             throw new RuntimeException(
@@ -317,12 +393,17 @@ public List<Transaction> getTransactions(
                 .build();
     }
 
+    // =========================
+    // GENERATE ACCOUNT NUMBER
+    // =========================
+
     private String generateAccountNumber() {
 
         Random random = new Random();
 
         return String.valueOf(
-                1000000000L + random.nextInt(900000000)
+                1000000000L +
+                        random.nextInt(900000000)
         );
     }
 }
