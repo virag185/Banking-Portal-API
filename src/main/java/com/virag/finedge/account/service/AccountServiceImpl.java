@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.virag.finedge.account.dto.AccountResponse;
 import com.virag.finedge.account.dto.CreateAccountRequest;
@@ -71,6 +72,7 @@ public class AccountServiceImpl implements AccountService {
     // =========================
 
     @Override
+    @Transactional
     public TransactionResponse deposit(
             String accountNumber,
             DepositRequest request,
@@ -114,6 +116,7 @@ public class AccountServiceImpl implements AccountService {
     // =========================
 
     @Override
+    @Transactional
     public TransactionResponse withdraw(
             String accountNumber,
             WithdrawRequest request,
@@ -164,6 +167,7 @@ public class AccountServiceImpl implements AccountService {
     // =========================
 
     @Override
+    @Transactional
     public TransactionResponse transfer(
             String senderAccountNumber,
             TransferRequest request,
@@ -183,7 +187,7 @@ public class AccountServiceImpl implements AccountService {
                     "Sender account is not active");
         }
 
-        // Receiver can belong to another user
+        // Find receiver account
         Account receiver = accountRepository
                 .findByAccountNumber(
                         request.getReceiverAccountNumber())
@@ -196,6 +200,7 @@ public class AccountServiceImpl implements AccountService {
                     "Receiver account is not active");
         }
 
+        // Prevent transfer to same account
         if (sender.getAccountNumber()
                 .equals(receiver.getAccountNumber())) {
 
@@ -203,6 +208,7 @@ public class AccountServiceImpl implements AccountService {
                     "Cannot transfer to the same account");
         }
 
+        // Check balance
         if (sender.getBalance()
                 .compareTo(request.getAmount()) < 0) {
 
@@ -210,11 +216,13 @@ public class AccountServiceImpl implements AccountService {
                     "Insufficient balance");
         }
 
+        // Deduct from sender
         sender.setBalance(
                 sender.getBalance()
                         .subtract(request.getAmount())
         );
 
+        // Add to receiver
         receiver.setBalance(
                 receiver.getBalance()
                         .add(request.getAmount())
@@ -290,7 +298,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     // =========================
-    // GET ACCOUNT
+    // GET SINGLE ACCOUNT
     // =========================
 
     @Override
@@ -355,6 +363,7 @@ public class AccountServiceImpl implements AccountService {
     // =========================
 
     @Override
+    @Transactional
     public AccountResponse closeAccount(
             String accountNumber,
             String email) {
