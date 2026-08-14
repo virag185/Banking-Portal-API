@@ -360,17 +360,31 @@ function Dashboard() {
   };
 
   // =========================
+  // DASHBOARD SUMMARY
+  // =========================
+
+  const totalBalance = accounts.reduce(
+    (total, account) =>
+      total + Number(account.balance || 0),
+    0
+  );
+
+  const totalAccounts = accounts.length;
+
+  const activeAccounts = accounts.filter(
+    (account) => account.status === "ACTIVE"
+  ).length;
+
+  // =========================
   // LOADING
   // =========================
 
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-
         <p className="text-slate-400">
           Loading your accounts...
         </p>
-
       </div>
     );
   }
@@ -416,7 +430,7 @@ function Dashboard() {
 
           <button
             onClick={logout}
-            className="border border-slate-700 rounded-lg px-4 py-2 text-sm hover:bg-slate-800"
+            className="border border-slate-700 rounded-lg px-4 py-2 text-sm hover:bg-slate-800 transition"
           >
             Logout
           </button>
@@ -432,7 +446,11 @@ function Dashboard() {
 
       <main className="max-w-7xl mx-auto px-6 py-8">
 
-        <div className="flex justify-between items-center mb-8">
+        {/* =========================
+            DASHBOARD HEADER
+        ========================== */}
+
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-5 mb-8">
 
           <div>
 
@@ -452,10 +470,84 @@ function Dashboard() {
               setError("");
               setSuccess("");
             }}
-            className="bg-blue-600 hover:bg-blue-500 rounded-xl px-5 py-3 font-semibold"
+            className="bg-blue-600 hover:bg-blue-500 rounded-xl px-5 py-3 font-semibold transition"
           >
             + Create Account
           </button>
+
+        </div>
+
+
+        {/* =========================
+            SUMMARY CARDS
+        ========================== */}
+
+        <div className="grid gap-5 md:grid-cols-3 mb-8">
+
+          {/* TOTAL BALANCE */}
+
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+
+            <p className="text-sm text-slate-500">
+              Total Balance
+            </p>
+
+            <h3 className="text-3xl font-bold mt-2">
+
+              ₹
+              {totalBalance.toLocaleString(
+                "en-IN",
+                {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }
+              )}
+
+            </h3>
+
+            <p className="text-xs text-slate-500 mt-2">
+              Across all your accounts
+            </p>
+
+          </div>
+
+
+          {/* TOTAL ACCOUNTS */}
+
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+
+            <p className="text-sm text-slate-500">
+              Total Accounts
+            </p>
+
+            <h3 className="text-3xl font-bold mt-2">
+              {totalAccounts}
+            </h3>
+
+            <p className="text-xs text-slate-500 mt-2">
+              Accounts linked to your profile
+            </p>
+
+          </div>
+
+
+          {/* ACTIVE ACCOUNTS */}
+
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+
+            <p className="text-sm text-slate-500">
+              Active Accounts
+            </p>
+
+            <h3 className="text-3xl font-bold mt-2 text-green-400">
+              {activeAccounts}
+            </h3>
+
+            <p className="text-xs text-slate-500 mt-2">
+              Currently active
+            </p>
+
+          </div>
 
         </div>
 
@@ -467,9 +559,7 @@ function Dashboard() {
         {success && (
 
           <div className="mb-6 bg-green-500/10 border border-green-500/20 text-green-400 rounded-xl px-5 py-4">
-
             {success}
-
           </div>
 
         )}
@@ -482,9 +572,7 @@ function Dashboard() {
         {error && (
 
           <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-5 py-4">
-
             {error}
-
           </div>
 
         )}
@@ -507,8 +595,12 @@ function Dashboard() {
             </p>
 
             <button
-              onClick={() => setShowCreate(true)}
-              className="mt-6 bg-blue-600 hover:bg-blue-500 rounded-xl px-6 py-3 font-semibold"
+              onClick={() => {
+                setShowCreate(true);
+                setError("");
+                setSuccess("");
+              }}
+              className="mt-6 bg-blue-600 hover:bg-blue-500 rounded-xl px-6 py-3 font-semibold transition"
             >
               Create Account
             </button>
@@ -517,211 +609,252 @@ function Dashboard() {
 
         ) : (
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div>
 
-            {accounts.map((account) => (
+            <div className="flex items-center justify-between mb-5">
 
-              <div
-                key={account.accountNumber}
-                className="bg-slate-900 border border-slate-800 rounded-2xl p-6"
-              >
+              <h3 className="text-xl font-semibold">
+                Your Accounts
+              </h3>
 
-                {/* ACCOUNT HEADER */}
+              <span className="text-sm text-slate-500">
+                {totalAccounts}{" "}
+                {totalAccounts === 1
+                  ? "account"
+                  : "accounts"}
+              </span>
 
-                <div className="flex justify-between">
+            </div>
 
-                  <div>
 
-                    <p className="text-sm text-slate-500">
-                      Available Balance
-                    </p>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 
-                    <h3 className="text-3xl font-bold mt-2">
+              {accounts.map((account) => {
 
-                      ₹
-                      {Number(
-                        account.balance
-                      ).toLocaleString(
-                        "en-IN",
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
+                const isActive =
+                  account.status === "ACTIVE";
+
+                return (
+
+                  <div
+                    key={account.accountNumber}
+                    className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition"
+                  >
+
+                    {/* ACCOUNT HEADER */}
+
+                    <div className="flex items-start justify-between gap-4">
+
+                      <div>
+
+                        <p className="text-sm text-slate-500">
+                          Available Balance
+                        </p>
+
+                        <h3 className="text-3xl font-bold mt-2 tracking-tight">
+
+                          ₹
+                          {Number(
+                            account.balance
+                          ).toLocaleString(
+                            "en-IN",
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }
+                          )}
+
+                        </h3>
+
+                      </div>
+
+
+                      <span
+                        className={
+                          account.accountType === "SAVINGS"
+                            ? "bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1.5 rounded-lg text-xs font-semibold"
+                            : "bg-purple-500/10 text-purple-400 border border-purple-500/20 px-3 py-1.5 rounded-lg text-xs font-semibold"
                         }
-                      )}
+                      >
+                        {account.accountType}
+                      </span>
 
-                    </h3>
+                    </div>
+
+
+                    {/* ACCOUNT NUMBER */}
+
+                    <div className="mt-6 bg-slate-950 border border-slate-800 rounded-xl p-4">
+
+                      <p className="text-xs text-slate-500">
+                        Account Number
+                      </p>
+
+                      <p className="mt-1 font-medium tracking-wide break-all">
+                        {account.accountNumber}
+                      </p>
+
+                    </div>
+
+
+                    {/* ACCOUNT DETAILS */}
+
+                    <div className="mt-5 space-y-4">
+
+                      <div className="flex justify-between items-center gap-4">
+
+                        <span className="text-sm text-slate-500">
+                          Account Holder
+                        </span>
+
+                        <span className="text-sm text-right">
+                          {account.accountHolder}
+                        </span>
+
+                      </div>
+
+
+                      <div className="flex justify-between items-center">
+
+                        <span className="text-sm text-slate-500">
+                          Status
+                        </span>
+
+                        <span
+                          className={
+                            isActive
+                              ? "inline-flex items-center gap-2 text-green-400 text-sm font-medium"
+                              : "inline-flex items-center gap-2 text-red-400 text-sm font-medium"
+                          }
+                        >
+
+                          <span
+                            className={
+                              isActive
+                                ? "h-2 w-2 rounded-full bg-green-400"
+                                : "h-2 w-2 rounded-full bg-red-400"
+                            }
+                          />
+
+                          {account.status}
+
+                        </span>
+
+                      </div>
+
+                    </div>
+
+
+                    {/* DIVIDER */}
+
+                    <div className="border-t border-slate-800 mt-6 pt-5">
+
+
+                      {/* ACTION BUTTONS */}
+
+                      <div className="grid grid-cols-2 gap-2">
+
+                        {/* DEPOSIT */}
+
+                        <button
+                          disabled={!isActive}
+                          onClick={() => {
+
+                            setSelectedAccount(account);
+                            setShowDeposit(true);
+                            setDepositAmount("");
+                            setError("");
+                            setSuccess("");
+
+                          }}
+                          className="bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg py-2.5 text-sm font-medium transition"
+                        >
+                          Deposit
+                        </button>
+
+
+                        {/* WITHDRAW */}
+
+                        <button
+                          disabled={!isActive}
+                          onClick={() => {
+
+                            setSelectedAccount(account);
+                            setShowWithdraw(true);
+                            setWithdrawAmount("");
+                            setError("");
+                            setSuccess("");
+
+                          }}
+                          className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg py-2.5 text-sm font-medium transition"
+                        >
+                          Withdraw
+                        </button>
+
+
+                        {/* TRANSFER */}
+
+                        <button
+                          disabled={!isActive}
+                          onClick={() => {
+
+                            setSelectedAccount(account);
+                            setShowTransfer(true);
+                            setReceiverAccountNumber("");
+                            setTransferAmount("");
+                            setError("");
+                            setSuccess("");
+
+                          }}
+                          className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg py-2.5 text-sm font-medium transition"
+                        >
+                          Transfer
+                        </button>
+
+
+                        {/* TRANSACTIONS */}
+
+                        <button
+                          onClick={() =>
+                            fetchTransactions(account)
+                          }
+                          className="bg-slate-800 hover:bg-slate-700 rounded-lg py-2.5 text-sm font-medium transition"
+                        >
+                          Transactions
+                        </button>
+
+
+                        {/* CLOSE */}
+
+                        <button
+                          disabled={
+                            !isActive ||
+                            Number(account.balance) !== 0
+                          }
+                          onClick={() => {
+
+                            setSelectedAccount(account);
+                            setShowClose(true);
+                            setError("");
+                            setSuccess("");
+
+                          }}
+                          className="col-span-2 bg-red-600/10 text-red-400 border border-red-500/10 hover:bg-red-600/20 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg py-2.5 text-sm font-medium transition"
+                        >
+                          Close Account
+                        </button>
+
+                      </div>
+
+                    </div>
 
                   </div>
 
-                  <span className="bg-blue-600/10 text-blue-400 px-3 py-2 rounded-xl text-sm h-fit">
-                    {account.accountType}
-                  </span>
+                );
 
-                </div>
+              })}
 
-
-                {/* ACCOUNT DETAILS */}
-
-                <div className="border-t border-slate-800 mt-6 pt-5 space-y-4">
-
-                  <div className="flex justify-between">
-
-                    <span className="text-slate-500">
-                      Account Number
-                    </span>
-
-                    <span>
-                      {account.accountNumber}
-                    </span>
-
-                  </div>
-
-
-                  <div className="flex justify-between">
-
-                    <span className="text-slate-500">
-                      Account Holder
-                    </span>
-
-                    <span>
-                      {account.accountHolder}
-                    </span>
-
-                  </div>
-
-
-                  <div className="flex justify-between">
-
-                    <span className="text-slate-500">
-                      Status
-                    </span>
-
-                    <span
-                      className={
-                        account.status === "ACTIVE"
-                          ? "text-green-400"
-                          : "text-red-400"
-                      }
-                    >
-                      {account.status}
-                    </span>
-
-                  </div>
-
-                </div>
-
-
-                {/* =========================
-                    ACTION BUTTONS
-                ========================== */}
-
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-6">
-
-                  {/* DEPOSIT */}
-
-                  <button
-                    disabled={
-                      account.status !== "ACTIVE"
-                    }
-                    onClick={() => {
-
-                      setSelectedAccount(account);
-                      setShowDeposit(true);
-                      setDepositAmount("");
-                      setError("");
-                      setSuccess("");
-
-                    }}
-                    className="bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg py-2 text-sm"
-                  >
-                    Deposit
-                  </button>
-
-
-                  {/* WITHDRAW */}
-
-                  <button
-                    disabled={
-                      account.status !== "ACTIVE"
-                    }
-                    onClick={() => {
-
-                      setSelectedAccount(account);
-                      setShowWithdraw(true);
-                      setWithdrawAmount("");
-                      setError("");
-                      setSuccess("");
-
-                    }}
-                    className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg py-2 text-sm"
-                  >
-                    Withdraw
-                  </button>
-
-
-                  {/* TRANSFER */}
-
-                  <button
-                    disabled={
-                      account.status !== "ACTIVE"
-                    }
-                    onClick={() => {
-
-                      console.log(
-                        "TRANSFER CLICKED"
-                      );
-
-                      setSelectedAccount(account);
-                      setShowTransfer(true);
-                      setReceiverAccountNumber("");
-                      setTransferAmount("");
-                      setError("");
-                      setSuccess("");
-
-                    }}
-                    className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg py-2 text-sm"
-                  >
-                    Transfer
-                  </button>
-
-
-                  {/* TRANSACTIONS */}
-
-                  <button
-                    onClick={() =>
-                      fetchTransactions(account)
-                    }
-                    className="bg-slate-800 hover:bg-slate-700 rounded-lg py-2 text-sm"
-                  >
-                    Transactions
-                  </button>
-
-
-                  {/* CLOSE */}
-
-                  <button
-                    disabled={
-                      account.status !== "ACTIVE" ||
-                      Number(account.balance) !== 0
-                    }
-                    onClick={() => {
-
-                      setSelectedAccount(account);
-                      setShowClose(true);
-                      setError("");
-                      setSuccess("");
-
-                    }}
-                    className="bg-red-600/20 text-red-400 hover:bg-red-600/30 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg py-2 text-sm"
-                  >
-                    Close
-                  </button>
-
-                </div>
-
-              </div>
-
-            ))}
+            </div>
 
           </div>
 
@@ -747,7 +880,6 @@ function Dashboard() {
             <p className="text-slate-400 text-sm mt-1">
               Choose your account type.
             </p>
-
 
             <form
               onSubmit={createAccount}
@@ -782,7 +914,7 @@ function Dashboard() {
                   onClick={() =>
                     setShowCreate(false)
                   }
-                  className="flex-1 border border-slate-700 rounded-xl py-3"
+                  className="flex-1 border border-slate-700 rounded-xl py-3 hover:bg-slate-800 transition"
                 >
                   Cancel
                 </button>
@@ -791,7 +923,7 @@ function Dashboard() {
                 <button
                   type="submit"
                   disabled={processing}
-                  className="flex-1 bg-blue-600 hover:bg-blue-500 rounded-xl py-3 font-semibold"
+                  className="flex-1 bg-blue-600 hover:bg-blue-500 rounded-xl py-3 font-semibold disabled:opacity-50 transition"
                 >
                   {processing
                     ? "Creating..."
@@ -886,7 +1018,7 @@ function Dashboard() {
                   onClick={() =>
                     setShowDeposit(false)
                   }
-                  className="flex-1 border border-slate-700 rounded-xl py-3"
+                  className="flex-1 border border-slate-700 rounded-xl py-3 hover:bg-slate-800 transition"
                 >
                   Cancel
                 </button>
@@ -895,7 +1027,7 @@ function Dashboard() {
                 <button
                   type="submit"
                   disabled={processing}
-                  className="flex-1 bg-blue-600 hover:bg-blue-500 rounded-xl py-3 font-semibold"
+                  className="flex-1 bg-blue-600 hover:bg-blue-500 rounded-xl py-3 font-semibold disabled:opacity-50 transition"
                 >
                   {processing
                     ? "Depositing..."
@@ -982,7 +1114,7 @@ function Dashboard() {
                   onClick={() =>
                     setShowWithdraw(false)
                   }
-                  className="flex-1 border border-slate-700 rounded-xl py-3"
+                  className="flex-1 border border-slate-700 rounded-xl py-3 hover:bg-slate-800 transition"
                 >
                   Cancel
                 </button>
@@ -991,7 +1123,7 @@ function Dashboard() {
                 <button
                   type="submit"
                   disabled={processing}
-                  className="flex-1 bg-blue-600 hover:bg-blue-500 rounded-xl py-3 font-semibold"
+                  className="flex-1 bg-blue-600 hover:bg-blue-500 rounded-xl py-3 font-semibold disabled:opacity-50 transition"
                 >
                   {processing
                     ? "Withdrawing..."
@@ -1147,7 +1279,7 @@ function Dashboard() {
                     setTransferAmount("");
 
                   }}
-                  className="flex-1 border border-slate-700 rounded-xl py-3"
+                  className="flex-1 border border-slate-700 rounded-xl py-3 hover:bg-slate-800 transition"
                 >
                   Cancel
                 </button>
@@ -1156,7 +1288,7 @@ function Dashboard() {
                 <button
                   type="submit"
                   disabled={processing}
-                  className="flex-1 bg-blue-600 hover:bg-blue-500 rounded-xl py-3 font-semibold"
+                  className="flex-1 bg-blue-600 hover:bg-blue-500 rounded-xl py-3 font-semibold disabled:opacity-50 transition"
                 >
                   {processing
                     ? "Transferring..."
@@ -1227,9 +1359,7 @@ function Dashboard() {
             {transactionLoading ? (
 
               <div className="text-center py-10 text-slate-400">
-
                 Loading transactions...
-
               </div>
 
             ) : transactions.length === 0 ? (
@@ -1273,7 +1403,7 @@ function Dashboard() {
                         className="bg-slate-950 border border-slate-800 rounded-xl p-4"
                       >
 
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center gap-4">
 
                           <div>
 
@@ -1307,6 +1437,7 @@ function Dashboard() {
                               {isPositive
                                 ? "+"
                                 : "-"}
+
                               ₹
                               {Math.abs(
                                 amount
@@ -1437,7 +1568,7 @@ function Dashboard() {
                   setSelectedAccount(null);
 
                 }}
-                className="flex-1 border border-slate-700 rounded-xl py-3"
+                className="flex-1 border border-slate-700 rounded-xl py-3 hover:bg-slate-800 transition"
               >
                 Cancel
               </button>
@@ -1452,7 +1583,7 @@ function Dashboard() {
                     selectedAccount.balance
                   ) !== 0
                 }
-                className="flex-1 bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl py-3 font-semibold"
+                className="flex-1 bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl py-3 font-semibold transition"
               >
                 {processing
                   ? "Closing..."
