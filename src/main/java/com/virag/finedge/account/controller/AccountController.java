@@ -20,12 +20,14 @@ import com.virag.finedge.account.dto.WithdrawRequest;
 import com.virag.finedge.account.entity.Transaction;
 import com.virag.finedge.account.service.AccountService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/accounts")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class AccountController {
 
     private final AccountService accountService;

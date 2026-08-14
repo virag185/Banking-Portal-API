@@ -1,44 +1,38 @@
 package com.virag.finedge.config;
 
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.info.Contact;
-import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.info.License;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import io.swagger.v3.oas.annotations.servers.Server;
-
 @Configuration
-@OpenAPIDefinition(
-        info = @Info(
-                title = "Banking Portal API",
-                version = "1.0",
-                description = "REST API for Banking Portal built using Spring Boot",
-                contact = @Contact(
-                        name = "Virag Khade",
-                        email = "khadevirag5@gmail.com",
-                        url = "https://github.com/virag185"
-                ),
-                license = @License(name = "MIT License")
-        ),
-        servers = {
-                @Server(
-                        url = "http://localhost:8080",
-                        description = "Local Server"
-                )
-        },
-        security = {
-                @SecurityRequirement(name = "Bearer Authentication")
-        }
-)
-@SecurityScheme(
-        name = "Bearer Authentication",
-        type = SecuritySchemeType.HTTP,
-        scheme = "bearer",
-        bearerFormat = "JWT"
-)
 public class OpenApiConfig {
+
+    @Bean
+    public OpenAPI finEdgeOpenAPI() {
+
+        return new OpenAPI()
+                .info(
+                        new Info()
+                                .title("FinEdge Banking API")
+                                .description(
+                                        "Secure digital banking REST API " +
+                                        "for managing accounts, deposits, " +
+                                        "withdrawals, transfers and transactions."
+                                )
+                                .version("1.0.0")
+                )
+                .components(
+                        new Components()
+                                .addSecuritySchemes(
+                                        "bearerAuth",
+                                        new SecurityScheme()
+                                                .type(SecurityScheme.Type.HTTP)
+                                                .scheme("bearer")
+                                                .bearerFormat("JWT")
+                                )
+                );
+    }
 }

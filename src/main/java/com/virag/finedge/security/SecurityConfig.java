@@ -28,44 +28,96 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http) throws Exception {
 
         http
+            // =========================
+            // CSRF
+            // =========================
+
             .csrf(csrf -> csrf.disable())
 
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            // =========================
+            // CORS
+            // =========================
+
+            .cors(cors ->
+                cors.configurationSource(
+                    corsConfigurationSource()
+                )
+            )
+
+            // =========================
+            // SESSION
+            // =========================
 
             .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                session.sessionCreationPolicy(
+                    SessionCreationPolicy.STATELESS
+                )
             )
+
+            // =========================
+            // AUTHORIZATION
+            // =========================
 
             .authorizeHttpRequests(auth -> auth
 
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
+                // OPTIONS / CORS
                 .requestMatchers(
-                    "/api/auth/**",
+                    HttpMethod.OPTIONS,
+                    "/**"
+                ).permitAll()
+
+                // Authentication APIs
+                .requestMatchers(
+                    "/api/auth/**"
+                ).permitAll()
+
+                // Swagger UI
+                .requestMatchers(
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/v3/api-docs/**"
+                ).permitAll()
+
+                // Error endpoint
+                .requestMatchers(
                     "/error"
                 ).permitAll()
 
+                // Everything else requires JWT
                 .anyRequest().authenticated()
             )
 
+            // =========================
+            // JWT FILTER
+            // =========================
+
             .addFilterBefore(
                 jwtAuthenticationFilter,
-                org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
+                org.springframework.security.web.authentication
+                    .UsernamePasswordAuthenticationFilter.class
             );
 
         return http.build();
     }
 
+    // =========================
+    // CORS CONFIGURATION
+    // =========================
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration configuration = new CorsConfiguration();
+        CorsConfiguration configuration =
+            new CorsConfiguration();
 
         configuration.setAllowedOrigins(
-            List.of("http://localhost:5173")
+            List.of(
+                "http://localhost:5173"
+            )
         );
 
         configuration.setAllowedMethods(
