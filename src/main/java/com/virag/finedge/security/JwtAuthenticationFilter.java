@@ -35,20 +35,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("Request URI : " + request.getRequestURI());
 
         final String authHeader = request.getHeader("Authorization");
-        System.out.println("Authorization Header : " + authHeader);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("No Bearer token found.");
+            System.out.println("Authorization Header : Not provided");
             filterChain.doFilter(request, response);
             return;
         }
 
+        System.out.println("Authorization Header : Bearer token present");
+
         try {
 
             String jwt = authHeader.substring(7);
-            System.out.println("JWT : " + jwt);
 
             String email = jwtService.extractEmail(jwt);
+
             System.out.println("Email extracted : " + email);
 
             if (email != null &&
@@ -57,9 +58,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserDetails userDetails =
                         userDetailsService.loadUserByUsername(email);
 
-                System.out.println("User Loaded : " + userDetails.getUsername());
+                System.out.println(
+                        "User Loaded : " + userDetails.getUsername());
 
-                if (jwtService.isTokenValid(jwt, userDetails.getUsername())) {
+                if (jwtService.isTokenValid(
+                        jwt,
+                        userDetails.getUsername())) {
 
                     System.out.println("JWT VALID");
 
@@ -76,15 +80,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext()
                             .setAuthentication(authToken);
 
-                    System.out.println("Authentication Set Successfully");
+                    System.out.println(
+                            "Authentication Set Successfully");
+
                 } else {
+
                     System.out.println("JWT INVALID");
                 }
             }
 
         } catch (Exception e) {
-            System.out.println("JWT ERROR : " + e.getMessage());
-            e.printStackTrace();
+
+            System.out.println(
+                    "JWT ERROR : " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);
