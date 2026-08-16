@@ -1,4 +1,5 @@
 package com.virag.finedge.account.service;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +22,7 @@ import com.virag.finedge.account.repository.AccountRepository;
 import com.virag.finedge.account.repository.TransactionRepository;
 import com.virag.finedge.entity.User;
 import com.virag.finedge.exception.AccountNotFoundException;
+import com.virag.finedge.exception.UserNotFoundException;
 import com.virag.finedge.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -44,7 +46,8 @@ public class AccountServiceImpl implements AccountService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                        new UserNotFoundException(
+                                "User not found"));
 
         String accountNumber = generateAccountNumber();
 

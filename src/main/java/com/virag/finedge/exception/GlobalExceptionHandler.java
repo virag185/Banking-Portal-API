@@ -75,6 +75,27 @@ public class GlobalExceptionHandler {
     }
 
     // =========================================================
+    // USER NOT FOUND
+    // =========================================================
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFoundException(
+            UserNotFoundException ex) {
+
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                ex.getMessage()
+        );
+
+        return new ResponseEntity<>(
+                error,
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    // =========================================================
     // VALIDATION ERROR
     // =========================================================
 
