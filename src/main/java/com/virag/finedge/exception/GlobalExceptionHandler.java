@@ -96,6 +96,27 @@ public class GlobalExceptionHandler {
     }
 
     // =========================================================
+    // INSUFFICIENT BALANCE
+    // =========================================================
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ResponseEntity<ErrorResponse> handleInsufficientBalanceException(
+            InsufficientBalanceException ex) {
+
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage()
+        );
+
+        return new ResponseEntity<>(
+                error,
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    // =========================================================
     // VALIDATION ERROR
     // =========================================================
 

@@ -22,6 +22,7 @@ import com.virag.finedge.account.repository.AccountRepository;
 import com.virag.finedge.account.repository.TransactionRepository;
 import com.virag.finedge.entity.User;
 import com.virag.finedge.exception.AccountNotFoundException;
+import com.virag.finedge.exception.InsufficientBalanceException;
 import com.virag.finedge.exception.UserNotFoundException;
 import com.virag.finedge.repository.UserRepository;
 
@@ -142,7 +143,7 @@ public class AccountServiceImpl implements AccountService {
         if (account.getBalance()
                 .compareTo(request.getAmount()) < 0) {
 
-            throw new RuntimeException(
+            throw new InsufficientBalanceException(
                     "Insufficient balance");
         }
 
@@ -217,7 +218,7 @@ public class AccountServiceImpl implements AccountService {
         if (sender.getBalance()
                 .compareTo(request.getAmount()) < 0) {
 
-            throw new RuntimeException(
+            throw new InsufficientBalanceException(
                     "Insufficient balance");
         }
 
