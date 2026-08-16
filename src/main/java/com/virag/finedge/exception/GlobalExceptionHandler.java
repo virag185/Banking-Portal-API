@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // =========================================================
     // EMAIL ALREADY EXISTS
-    // =========================================================
-
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleEmailAlreadyExistsException(
             EmailAlreadyExistsException ex) {
@@ -26,16 +23,10 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
 
-        return new ResponseEntity<>(
-                error,
-                HttpStatus.CONFLICT
-        );
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
-    // =========================================================
     // INVALID CREDENTIALS
-    // =========================================================
-
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(
             InvalidCredentialsException ex) {
@@ -47,16 +38,10 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
 
-        return new ResponseEntity<>(
-                error,
-                HttpStatus.UNAUTHORIZED
-        );
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    // =========================================================
     // ACCOUNT NOT FOUND
-    // =========================================================
-
     @ExceptionHandler(AccountNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleAccountNotFoundException(
             AccountNotFoundException ex) {
@@ -68,16 +53,10 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
 
-        return new ResponseEntity<>(
-                error,
-                HttpStatus.NOT_FOUND
-        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    // =========================================================
     // USER NOT FOUND
-    // =========================================================
-
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(
             UserNotFoundException ex) {
@@ -89,16 +68,10 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
 
-        return new ResponseEntity<>(
-                error,
-                HttpStatus.NOT_FOUND
-        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    // =========================================================
     // INSUFFICIENT BALANCE
-    // =========================================================
-
     @ExceptionHandler(InsufficientBalanceException.class)
     public ResponseEntity<ErrorResponse> handleInsufficientBalanceException(
             InsufficientBalanceException ex) {
@@ -110,16 +83,25 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
 
-        return new ResponseEntity<>(
-                error,
-                HttpStatus.BAD_REQUEST
-        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    // =========================================================
-    // VALIDATION ERROR
-    // =========================================================
+    // ACCOUNT NOT ACTIVE
+    @ExceptionHandler(AccountNotActiveException.class)
+    public ResponseEntity<ErrorResponse> handleAccountNotActiveException(
+            AccountNotActiveException ex) {
 
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    // VALIDATION ERROR
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex) {
@@ -139,16 +121,10 @@ public class GlobalExceptionHandler {
                 message
         );
 
-        return new ResponseEntity<>(
-                error,
-                HttpStatus.BAD_REQUEST
-        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    // =========================================================
     // GENERAL RUNTIME EXCEPTION
-    // =========================================================
-
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(
             RuntimeException ex) {
@@ -160,16 +136,10 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
 
-        return new ResponseEntity<>(
-                error,
-                HttpStatus.BAD_REQUEST
-        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    // =========================================================
     // UNEXPECTED EXCEPTION
-    // =========================================================
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(
             Exception ex) {
@@ -181,9 +151,6 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
 
-        return new ResponseEntity<>(
-                error,
-                HttpStatus.INTERNAL_SERVER_ERROR
-        );
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

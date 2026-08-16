@@ -21,6 +21,7 @@ import com.virag.finedge.account.entity.TransactionType;
 import com.virag.finedge.account.repository.AccountRepository;
 import com.virag.finedge.account.repository.TransactionRepository;
 import com.virag.finedge.entity.User;
+import com.virag.finedge.exception.AccountNotActiveException;
 import com.virag.finedge.exception.AccountNotFoundException;
 import com.virag.finedge.exception.InsufficientBalanceException;
 import com.virag.finedge.exception.UserNotFoundException;
@@ -91,7 +92,7 @@ public class AccountServiceImpl implements AccountService {
                                 "Account not found"));
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException(
+            throw new AccountNotActiveException(
                     "Account is not active");
         }
 
@@ -136,7 +137,7 @@ public class AccountServiceImpl implements AccountService {
                                 "Account not found"));
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException(
+            throw new AccountNotActiveException(
                     "Account is not active");
         }
 
@@ -179,7 +180,6 @@ public class AccountServiceImpl implements AccountService {
             TransferRequest request,
             String email) {
 
-        // Verify sender belongs to logged-in user
         Account sender = accountRepository
                 .findByAccountNumberAndUserEmail(
                         senderAccountNumber,
@@ -189,11 +189,10 @@ public class AccountServiceImpl implements AccountService {
                                 "Sender account not found"));
 
         if (sender.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException(
+            throw new AccountNotActiveException(
                     "Sender account is not active");
         }
 
-        // Find receiver account
         Account receiver = accountRepository
                 .findByAccountNumber(
                         request.getReceiverAccountNumber())
@@ -202,11 +201,10 @@ public class AccountServiceImpl implements AccountService {
                                 "Receiver account not found"));
 
         if (receiver.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException(
+            throw new AccountNotActiveException(
                     "Receiver account is not active");
         }
 
-        // Prevent transfer to same account
         if (sender.getAccountNumber()
                 .equals(receiver.getAccountNumber())) {
 
@@ -214,7 +212,6 @@ public class AccountServiceImpl implements AccountService {
                     "Cannot transfer to the same account");
         }
 
-        // Check balance
         if (sender.getBalance()
                 .compareTo(request.getAmount()) < 0) {
 
@@ -222,13 +219,11 @@ public class AccountServiceImpl implements AccountService {
                     "Insufficient balance");
         }
 
-        // Deduct from sender
         sender.setBalance(
                 sender.getBalance()
                         .subtract(request.getAmount())
         );
 
-        // Add to receiver
         receiver.setBalance(
                 receiver.getBalance()
                         .add(request.getAmount())
@@ -237,7 +232,6 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(sender);
         accountRepository.save(receiver);
 
-        // Sender transaction
         saveTransaction(
                 sender.getAccountNumber(),
                 TransactionType.TRANSFER,
@@ -245,7 +239,6 @@ public class AccountServiceImpl implements AccountService {
                 sender.getBalance()
         );
 
-        // Receiver transaction
         saveTransaction(
                 receiver.getAccountNumber(),
                 TransactionType.TRANSFER,
@@ -321,7 +314,7 @@ public class AccountServiceImpl implements AccountService {
                                 "Account not found"));
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException(
+            throw new AccountNotActiveException(
                     "Account is not active");
         }
 
