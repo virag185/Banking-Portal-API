@@ -24,6 +24,7 @@ import com.virag.finedge.entity.User;
 import com.virag.finedge.exception.AccountNotActiveException;
 import com.virag.finedge.exception.AccountNotFoundException;
 import com.virag.finedge.exception.InsufficientBalanceException;
+import com.virag.finedge.exception.SameAccountTransferException;
 import com.virag.finedge.exception.UserNotFoundException;
 import com.virag.finedge.repository.UserRepository;
 
@@ -205,10 +206,11 @@ public class AccountServiceImpl implements AccountService {
                     "Receiver account is not active");
         }
 
+        // Prevent transfer to the same account
         if (sender.getAccountNumber()
                 .equals(receiver.getAccountNumber())) {
 
-            throw new RuntimeException(
+            throw new SameAccountTransferException(
                     "Cannot transfer to the same account");
         }
 
