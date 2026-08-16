@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // =========================================================
+    // EMAIL ALREADY EXISTS
+    // =========================================================
+
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleEmailAlreadyExistsException(
             EmailAlreadyExistsException ex) {
@@ -22,8 +26,15 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
 
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(
+                error,
+                HttpStatus.CONFLICT
+        );
     }
+
+    // =========================================================
+    // INVALID CREDENTIALS
+    // =========================================================
 
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(
@@ -36,16 +47,48 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
 
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(
+                error,
+                HttpStatus.UNAUTHORIZED
+        );
     }
+
+    // =========================================================
+    // ACCOUNT NOT FOUND
+    // =========================================================
+
+    @ExceptionHandler(AccountNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAccountNotFoundException(
+            AccountNotFoundException ex) {
+
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                ex.getMessage()
+        );
+
+        return new ResponseEntity<>(
+                error,
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    // =========================================================
+    // VALIDATION ERROR
+    // =========================================================
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex) {
 
-        String message = ex.getBindingResult()
-                .getFieldError()
-                .getDefaultMessage();
+        String message = "Validation failed";
+
+        if (ex.getBindingResult().getFieldError() != null) {
+            message = ex.getBindingResult()
+                    .getFieldError()
+                    .getDefaultMessage();
+        }
 
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
@@ -54,25 +97,40 @@ public class GlobalExceptionHandler {
                 message
         );
 
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(
+                error,
+                HttpStatus.BAD_REQUEST
+        );
     }
 
+    // =========================================================
+    // GENERAL RUNTIME EXCEPTION
+    // =========================================================
+
     @ExceptionHandler(RuntimeException.class)
-public ResponseEntity<ErrorResponse> handleRuntimeException(
-        RuntimeException ex) {
+    public ResponseEntity<ErrorResponse> handleRuntimeException(
+            RuntimeException ex) {
 
-    ErrorResponse error = new ErrorResponse(
-            LocalDateTime.now(),
-            HttpStatus.BAD_REQUEST.value(),
-            "Bad Request",
-            ex.getMessage()
-    );
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage()
+        );
 
-    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-}
+        return new ResponseEntity<>(
+                error,
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    // =========================================================
+    // UNEXPECTED EXCEPTION
+    // =========================================================
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
+    public ResponseEntity<ErrorResponse> handleException(
+            Exception ex) {
 
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
@@ -81,6 +139,9 @@ public ResponseEntity<ErrorResponse> handleRuntimeException(
                 ex.getMessage()
         );
 
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(
+                error,
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 }

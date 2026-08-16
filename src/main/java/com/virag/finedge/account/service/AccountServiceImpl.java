@@ -1,5 +1,4 @@
 package com.virag.finedge.account.service;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +20,7 @@ import com.virag.finedge.account.entity.TransactionType;
 import com.virag.finedge.account.repository.AccountRepository;
 import com.virag.finedge.account.repository.TransactionRepository;
 import com.virag.finedge.entity.User;
+import com.virag.finedge.exception.AccountNotFoundException;
 import com.virag.finedge.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -83,7 +83,8 @@ public class AccountServiceImpl implements AccountService {
                         accountNumber,
                         email)
                 .orElseThrow(() ->
-                        new RuntimeException("Account not found"));
+                        new AccountNotFoundException(
+                                "Account not found"));
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
             throw new RuntimeException(
@@ -127,7 +128,8 @@ public class AccountServiceImpl implements AccountService {
                         accountNumber,
                         email)
                 .orElseThrow(() ->
-                        new RuntimeException("Account not found"));
+                        new AccountNotFoundException(
+                                "Account not found"));
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
             throw new RuntimeException(
@@ -179,7 +181,7 @@ public class AccountServiceImpl implements AccountService {
                         senderAccountNumber,
                         email)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new AccountNotFoundException(
                                 "Sender account not found"));
 
         if (sender.getStatus() != AccountStatus.ACTIVE) {
@@ -192,7 +194,7 @@ public class AccountServiceImpl implements AccountService {
                 .findByAccountNumber(
                         request.getReceiverAccountNumber())
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new AccountNotFoundException(
                                 "Receiver account not found"));
 
         if (receiver.getStatus() != AccountStatus.ACTIVE) {
@@ -289,7 +291,7 @@ public class AccountServiceImpl implements AccountService {
                         accountNumber,
                         email)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new AccountNotFoundException(
                                 "Account not found"));
 
         return transactionRepository
@@ -311,7 +313,7 @@ public class AccountServiceImpl implements AccountService {
                         accountNumber,
                         email)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new AccountNotFoundException(
                                 "Account not found"));
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
@@ -373,7 +375,7 @@ public class AccountServiceImpl implements AccountService {
                         accountNumber,
                         email)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new AccountNotFoundException(
                                 "Account not found"));
 
         if (account.getStatus() == AccountStatus.CLOSED) {
