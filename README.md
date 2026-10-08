@@ -1,4 +1,4 @@
-# 💳 FinEdgeAPI
+# 💳 Banking Portal API
 
 A production-oriented **Digital Banking REST API** built with **Java** and **Spring Boot**. FinEdgeAPI provides secure authentication, account management, banking transactions, transaction history, validation, centralized exception handling, and database persistence.
 
