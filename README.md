@@ -1,6 +1,6 @@
 # 💳 Banking Portal API
 
-A production-oriented **Digital Banking REST API** built with **Java** and **Spring Boot**. FinEdgeAPI provides secure authentication, account management, banking transactions, transaction history, validation, centralized exception handling, and database persistence.
+A production-oriented **Digital Banking REST API** built with **Java** and **Spring Boot**. Banking Portal API provides secure authentication, account management, banking transactions, transaction history, validation, centralized exception handling, and database persistence.
 
 The project demonstrates practical **backend engineering, secure REST API development, and modern Spring Boot architecture**.
 
@@ -65,32 +65,36 @@ The project demonstrates practical **backend engineering, secure REST API develo
 
 ## 📂 Project Structure
 
-FinEdgeAPI/
+```text
+Finedge API /
 ├── src/
 │   ├── main/
 │   │   ├── java/
-│   │   │   └── com/virag/finedge/
-│   │   │       ├── controller/
-│   │   │       ├── service/
-│   │   │       ├── repository/
-│   │   │       ├── entity/
-│   │   │       ├── dto/
-│   │   │       ├── security/
-│   │   │       ├── config/
-│   │   │       └── exception/
+│   │   │   └── com/
+│   │   │       └── virag/
+│   │   │           └── finedge/
+│   │   │               ├── controller/
+│   │   │               ├── service/
+│   │   │               ├── repository/
+│   │   │               ├── entity/
+│   │   │               ├── dto/
+│   │   │               ├── security/
+│   │   │               ├── config/
+│   │   │               └── exception/
 │   │   └── resources/
 │   │       └── application.properties
 │   └── test/
 │       └── java/
+│
 ├── .github/
 │   └── workflows/
+│
 ├── .gitignore
 ├── pom.xml
 ├── mvnw
 ├── mvnw.cmd
 └── README.md
-
----
+```
 
 ## 📌 API Endpoints
 
